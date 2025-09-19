@@ -5,6 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const dateInput = document.getElementById('date-input');
     const taskList = document.getElementById('task-list');
 
+    // DOM Elements BARU untuk Filter
+    const filterContainer = document.getElementById('filter-container');
+    let currentFilter = 'all'; // Default filter
+
     // --- Utility Functions ---
 
     /**
@@ -27,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function createTaskElement(taskText, dueDate, isCompleted = false) {
         const listItem = document.createElement('li');
+        // Tambahkan atribut data untuk filter
+        listItem.dataset.completed = isCompleted; 
         listItem.className = 'flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-lg shadow-sm hover:bg-gray-100 transition duration-150';
 
         // Tanggal Styling (Lewat Waktu/Normal)
@@ -71,7 +77,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Fungsionalitas Checkbox (Menandai Selesai)
         checkbox.addEventListener('change', () => {
-            if (checkbox.checked) {
+            const isChecked = checkbox.checked;
+            listItem.dataset.completed = isChecked; // Perbarui data atribut
+
+            if (isChecked) {
                 taskTextSpan.classList.add('line-through', 'text-gray-500');
                 taskTextSpan.classList.remove('text-gray-800');
                 taskDateSpan.classList.add('opacity-50');
@@ -80,6 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 taskTextSpan.classList.add('text-gray-800');
                 taskDateSpan.classList.remove('opacity-50');
             }
+            
+            // Terapkan filter setelah status berubah
+            filterTasks(currentFilter);
         });
 
         // Fungsionalitas Hapus
@@ -90,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Fungsionalitas Edit
         editButton.addEventListener('click', () => {
             if (editButton.textContent === 'Edit') {
-                // Masuk Mode Edit: Ganti span dengan input
                 const currentText = taskTextSpan.textContent;
                 const currentDate = taskDateSpan.dataset.originalDate;
 
@@ -106,12 +117,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Simpan Perubahan: Ganti input dengan span dan simpan nilai baru
                 const newText = listItem.querySelector('.edit-text-input').value.trim();
                 const newDate = listItem.querySelector('.edit-date-input').value;
-                const isChecked = checkbox.checked; // Pertahankan status selesai
+                const isChecked = checkbox.checked; 
 
                 if (newText !== "") {
                     // Buat dan ganti elemen tugas dengan nilai baru
                     const updatedTask = createTaskElement(newText, newDate, isChecked);
                     taskList.replaceChild(updatedTask, listItem);
+                    
+                    // Terapkan filter setelah edit
+                    filterTasks(currentFilter); 
 
                 } else {
                     alert('Tugas tidak boleh kosong!');
@@ -121,6 +135,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return listItem;
     }
+
+    // Fungsi BARU untuk Filter Tugas
+    /**
+     * @doc: Menyembunyikan atau menampilkan tugas berdasarkan status (all, active, completed).
+     * @param {string} filterType - Jenis filter ('all', 'active', 'completed').
+     */
+    function filterTasks(filterType) {
+        currentFilter = filterType;
+        const tasks = taskList.querySelectorAll('li');
+
+        tasks.forEach(task => {
+            const isCompleted = task.dataset.completed === 'true'; // Ambil status dari data atribut
+
+            switch (filterType) {
+                case 'active':
+                    task.style.display = isCompleted ? 'none' : 'flex';
+                    break;
+                case 'completed':
+                    task.style.display = isCompleted ? 'flex' : 'none';
+                    break;
+                case 'all':
+                default:
+                    task.style.display = 'flex';
+                    break;
+            }
+        });
+
+        updateFilterButtons(filterType);
+    }
+    
+    // Fungsi BARU untuk memperbarui tampilan tombol filter
+    function updateFilterButtons(activeFilter) {
+        document.querySelectorAll('.filter-btn').forEach(button => {
+            if (button.dataset.filter === activeFilter) {
+                // Tombol aktif
+                button.classList.replace('bg-gray-300', 'bg-blue-500');
+                button.classList.replace('text-gray-700', 'text-white');
+                button.classList.add('shadow-md');
+                button.classList.remove('hover:bg-gray-400');
+                button.classList.add('hover:bg-blue-600');
+            } else {
+                // Tombol non-aktif
+                button.classList.replace('bg-blue-500', 'bg-gray-300');
+                button.classList.replace('text-white', 'text-gray-700');
+                button.classList.remove('shadow-md');
+                button.classList.add('hover:bg-gray-400');
+                button.classList.remove('hover:bg-blue-600');
+            }
+        });
+    }
+
 
     // --- Event Listeners ---
 
@@ -136,10 +201,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const newTask = createTaskElement(task, dueDate, false); 
             taskList.appendChild(newTask);
             
+            // Terapkan filter saat tugas baru ditambahkan
+            filterTasks(currentFilter); 
+
             // Reset input form
             taskInput.value = ""; 
             dateInput.value = ""; 
         }
     });
 
+    // Event listener BARU untuk tombol filter
+    filterContainer.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target.classList.contains('filter-btn')) {
+            const filterType = target.dataset.filter;
+            filterTasks(filterType);
+        }
+    });
+
+    // Inisialisasi tampilan tombol filter saat DOM dimuat
+    updateFilterButtons(currentFilter);
 });
