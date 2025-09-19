@@ -1,13 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    
-</body>
-<script src="/js/script.js"></script>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To-Do List Tailwind CSS</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100 min-h-screen flex items-start justify-center p-6">
+    <div class="w-full max-w-lg bg-white shadow-xl rounded-xl p-8 mt-10">
+      <h1 class="text-4xl font-extrabold text-gray-800 mb-6 text-center">
+        Daftar Tugas (To-Do List)
+      </h1>
+
+      <form id="todo-form" class="flex mb-8 space-x-2">
+        <input
+          type="text"
+          id="task-input"
+          placeholder="Tambahkan tugas baru..."
+          class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
+          required
+        />
+        <input
+          type="date"
+          id="date-input"
+          class="w-full md:w-auto p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
+        />
+        <button
+          type="submit"
+          class="bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-150 shadow-md"
+        >
+          Tambah
+        </button>
+      </form>
+
+      <ul id="task-list" class="space-y-3"></ul>
+    </div>
+
+    <script src="/js/script.js">
+      // JS akan diletakkan di sini
+    </script>
+  </body>
 </html>
